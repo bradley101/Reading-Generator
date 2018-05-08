@@ -230,6 +230,7 @@ public class Main extends JFrame {
 		comboBox_1.addItem("psi");
 		comboBox_1.addItem("Bar");
 		comboBox_1.addItem("mm");
+		comboBox_1.addItem("Ton");
 		contentPane.add(comboBox_1);
 		
 		JLabel lblSelectUnit = new JLabel("Select Unit");
