@@ -1,10 +1,12 @@
 package com.bradley.readinggenerator;
 
+import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,12 +34,16 @@ import com.lowagie.text.pdf.PdfWriter;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 
 /*
  * @author bradley
@@ -118,33 +124,35 @@ public class Main extends JFrame {
 		comboBox.addItem("1000");
 		comboBox.addItem("5 to 35");
 		comboBox.addItem("1");
+		comboBox.addItem("35");
 		comboBox.addItem("100");
 		comboBox.addItem("150");
 		comboBox.addItem("2");
+		comboBox.addItem("500");
 		contentPane.add(comboBox);
-		separator.setBounds(0, 95, 684, 8);
+		separator.setBounds(3, 115, 692, 7);
 		contentPane.add(separator);
 
 		JLabel lblZeroReading = new JLabel("Zero Reading");
-		lblZeroReading.setBounds(106, 114, 79, 20);
+		lblZeroReading.setBounds(106, 133, 79, 20);
 		contentPane.add(lblZeroReading);
 
 		textField_2 = new JTextField();
-		textField_2.setBounds(189, 114, 86, 20);
+		textField_2.setBounds(208, 133, 86, 20);
 		contentPane.add(textField_2);
 		textField_2.setColumns(10);
 
 		JLabel lblSecondReading = new JLabel("Second Reading");
-		lblSecondReading.setBounds(367, 117, 94, 17);
+		lblSecondReading.setBounds(367, 132, 94, 17);
 		contentPane.add(lblSecondReading);
 
 		textField_3 = new JTextField();
-		textField_3.setBounds(473, 114, 86, 20);
+		textField_3.setBounds(473, 131, 86, 20);
 		contentPane.add(textField_3);
 		textField_3.setColumns(10);
 
 		table = new JTable(new DefaultTableModel());
-		table.setBounds(106, 163, 453, 177);
+		table.setBounds(106, 169, 453, 156);
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		model.addColumn("load");
 		model.addColumn("up");
@@ -158,7 +166,7 @@ public class Main extends JFrame {
 		contentPane.add(table);
 
 		JButton btnSave = new JButton("Save");
-		btnSave.setBounds(293, 368, 89, 23);
+		btnSave.setBounds(293, 352, 89, 23);
 		contentPane.add(btnSave);
 
 		comboBox.addActionListener(new ActionListener() {
@@ -239,6 +247,10 @@ public class Main extends JFrame {
 		JLabel lblSelectUnit = new JLabel("Select Unit");
 		lblSelectUnit.setBounds(481, 70, 75, 14);
 		contentPane.add(lblSelectUnit);
+		
+		JCheckBox autoIncCheckBox = new JCheckBox("Auto Increment S.No");
+		autoIncCheckBox.setBounds(101, 88, 182, 21);
+		contentPane.add(autoIncCheckBox);
 
 		textField_2.addActionListener(new ActionListener() {
 
@@ -257,11 +269,11 @@ public class Main extends JFrame {
 			}
 		});
 
-		btnSave.addActionListener(new ActionListener() {
-
+		KeyStroke saveShortcut = KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK);
+		AbstractAction saveAction = new AbstractAction() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				if (textField.getText() == null || textField.getText().equals("") || textField_1.getText() == null
 						|| textField_1.getText().equals("")) {
 					JOptionPane.showMessageDialog(null, "Invalid Project Name or Serial Number",
@@ -270,7 +282,7 @@ public class Main extends JFrame {
 				}
 
 				File dir = new File(DESKTOP_DIR + textField.getText());
-				File cDir = new File(dir, ((String) comboBox.getSelectedItem()) + (String) comboBox_1.getSelectedItem());
+				File cDir = new File(new File(dir, textField_6.getText().isEmpty() ? "Instr" : textField_6.getText()), ((String) comboBox.getSelectedItem()) + (String) comboBox_1.getSelectedItem());
 				cDir.mkdirs();
 				File dFile = new File(cDir, textField_1.getText() + ".pdf");
 				destFile = dFile.getAbsolutePath();
@@ -286,11 +298,25 @@ public class Main extends JFrame {
 				
 				unit = (String) comboBox_1.getSelectedItem();
 				saveToTemplate();
+				try {
+					if (autoIncCheckBox.isSelected()) {
+						textField_1.setText(String.valueOf(Integer.valueOf(textField_1.getText()) + 1));
+						textField_2.requestFocus();
+					} else {
+						textField_1.requestFocus();
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 				JOptionPane.showMessageDialog(null, "Saved successfully!",
 						"Readings Generator - shantanu.banerjee.vt@gmail.com", JOptionPane.INFORMATION_MESSAGE);
 			}
-		});
-
+		};
+		btnSave.addActionListener(saveAction);
+		btnSave.getActionMap().put("save", saveAction);
+		btnSave.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+			.put(saveShortcut, "save");
+		
 		FocusAdapter fa = new FocusAdapter() {
 			
 			public void focusGained(FocusEvent evt) {
@@ -398,16 +424,24 @@ public class Main extends JFrame {
 			difference = 0.2f;
 			num = 5;
 		} else if (selection == 9) {
+			maxLoad = 35.0f;
+			difference = 7.0f;
+			num = 5;
+		} else if (selection == 10) {
 			maxLoad = 100.0f;
 			difference = 20.0f;
 			num = 5;
-		} else if (selection == 10) {
+		} else if (selection == 11) {
 			maxLoad = 150.0f;
 			difference = 30.0f;
 			num = 5;
-		} else if (selection == 11) {
+		} else if (selection == 12) {
 			maxLoad = 2.0f;
 			difference = 0.4f;
+			num = 5;
+		} else if (selection == 13) {
+			maxLoad = 500.0f;
+			difference = 100.0f;
 			num = 5;
 		}
 
@@ -432,7 +466,7 @@ public class Main extends JFrame {
 	@SuppressWarnings({ "unchecked" })
 	void saveToTemplate() {
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
-		Vector<Vector<Object>> v = model.getDataVector();
+		Vector<Vector> v = model.getDataVector();
 		customer = textField_4.getText();
 		poref = textField_5.getText();
 		instrument = textField_6.getText();
