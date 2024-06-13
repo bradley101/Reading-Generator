@@ -10,7 +10,11 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -20,13 +24,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import com.lowagie.text.*;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
@@ -299,7 +300,20 @@ public class Main extends JFrame {
 				}
 				
 				unit = (String) comboBox_1.getSelectedItem();
-				saveToTemplate();
+
+				try {
+					LocalDate localDate = LocalDate.parse(textField_8.getText(), dateTimeFormatter);
+					date = localDate.format(dateTimeFormatter);
+					date6mo = localDate.plusMonths(6).format(dateTimeFormatter);
+				} catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null,
+							"Please write the date in dd/mm/yyyy format",
+							"Readings Generator - shantanu.banerjee.vt@gmail.com",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+                }
+
+                saveToTemplate();
 				try {
 					if (autoIncCheckBox.isSelected()) {
 						textField_1.setText(String.valueOf(Integer.valueOf(textField_1.getText()) + 1));
@@ -471,7 +485,7 @@ public class Main extends JFrame {
 	
 	double[][] data;
 	double x[], y[], abc[], gf, lpress[], ppress[], lpresserr[], ppresserr[];
-	String customer, poref, instrument, range, date, sno;
+	String customer, poref, instrument, range, date, sno, date6mo;
 	
 	@SuppressWarnings({ "unchecked" })
 	void saveToTemplate() {
@@ -481,7 +495,6 @@ public class Main extends JFrame {
 		poref = textField_5.getText();
 		instrument = textField_6.getText();
 		range = textField_7.getText();
-		date = textField_8.getText();
 		sno = textField_1.getText();
 		
 		data = new double [v.size() - 1][v.get(0).size()];
@@ -537,7 +550,7 @@ public class Main extends JFrame {
 					{"Instrument", instrument},
 					{"Date", date},
 					{"Range", range},
-					{"R.Temp", "23� C"},
+					{"R.Temp", "23\u00b0C"},
 					{"Mfg. Sl. No", sno},
 					{"Atm. Press", "1004 mb"}
 			};
@@ -550,7 +563,7 @@ public class Main extends JFrame {
 			Phrase pp = new Phrase(), qp = new Phrase();
 			
 			for (int i = 0 ; i < t1L.length ; i++) {
-				pp = new Phrase(t1L[i][0]); qp = new Phrase(t1L[i][1]);
+				pp = new MyCustomePhrase(t1L[i][0], FontFactory.getFont(FontFactory.TIMES_BOLD, 10)); qp = new MyCustomePhrase(t1L[i][1]);
 				p.setPhrase(pp);
 				q.setPhrase(qp);
 				
@@ -604,9 +617,10 @@ public class Main extends JFrame {
 			PdfPTable t2 = new PdfPTable(new float[] {1, 3, 1, 1, 1, 1});
 			t2.setWidthPercentage(100);
 			p = new PdfPCell();
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
 			
 			for (int i = 0 ; i < t2L.length ; i++) {
-				pp = new Phrase(t2L[i]);
+				pp = new MyCustomePhrase(t2L[i], FontFactory.getFont(FontFactory.TIMES_BOLD, 10));
 				p.setPhrase(pp);
 				t2.addCell(p);
 			}
@@ -624,35 +638,37 @@ public class Main extends JFrame {
 			PdfPTable t3 = new PdfPTable(new float[] {1, 1, 1, 1, 1, 1, 1, 1});
 			t3.setWidthPercentage(100);
 			p = new PdfPCell();
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
 			
 			for (int i = 0 ; i < t3L.length ; i++) {
-				pp = new Phrase(t3L[i]);
+				pp = new MyCustomePhrase(t3L[i], FontFactory.getFont(FontFactory.TIMES_BOLD, 10));
 				p.setPhrase(pp);
 				t3.addCell(p);
 			}
 			double max1 = Double.MIN_VALUE, max2 = Double.MIN_VALUE;
 			for (int i = 0 ; i < y.length ; i++) {
 				p = new PdfPCell();
+				p.setHorizontalAlignment(Element.ALIGN_CENTER);
 				p.setBorder(Rectangle.LEFT);
-				p.setPhrase(new Phrase(String.format("%.1f", y[i])));
+				p.setPhrase(new MyCustomePhrase(String.format("%.1f", y[i])));
 				t3.addCell(p);
 				p.setBorder(0);
-				p.setPhrase(new Phrase(String.format("%.0f", data[i][1])));
+				p.setPhrase(new MyCustomePhrase(String.format("%.0f", data[i][1])));
 				t3.addCell(p);
-				p.setPhrase(new Phrase(String.format("%.0f", data[i][2])));
+				p.setPhrase(new MyCustomePhrase(String.format("%.0f", data[i][2])));
 				t3.addCell(p);
-				p.setPhrase(new Phrase(String.format("%.0f", x[i])));
+				p.setPhrase(new MyCustomePhrase(String.format("%.0f", x[i])));
 				p.setGrayFill(0.8f);
 				t3.addCell(p);
 				p.setGrayFill(1.0f);
-				p.setPhrase(new Phrase(String.format("%.3f", lpress[i])));
+				p.setPhrase(new MyCustomePhrase(String.format("%.3f", lpress[i])));
 				t3.addCell(p);
-				p.setPhrase(new Phrase(String.format("%.3f", ppress[i])));
+				p.setPhrase(new MyCustomePhrase(String.format("%.3f", ppress[i])));
 				t3.addCell(p);
-				p.setPhrase(new Phrase(String.format("%.2f", lpresserr[i])));
+				p.setPhrase(new MyCustomePhrase(String.format("%.2f", lpresserr[i])));
 				t3.addCell(p);
 				p.setBorder(Rectangle.RIGHT);
-				p.setPhrase(new Phrase(String.format("%.2f", ppresserr[i])));
+				p.setPhrase(new MyCustomePhrase(String.format("%.2f", ppresserr[i])));
 				t3.addCell(p);
 				
 				max1 = Math.max(max1, lpresserr[i]);
@@ -664,85 +680,162 @@ public class Main extends JFrame {
 			p.setBorder(Rectangle.LEFT|Rectangle.TOP);
 			t3.addCell(p); p.setBorder(Rectangle.TOP); t3.addCell(p); t3.addCell(p);
 			p = new PdfPCell();
-			p.setPhrase(new Phrase("NL%F.S."));
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
+			p.setPhrase(new MyCustomePhrase("NL%F.S.", FontFactory.getFont(FontFactory.TIMES_BOLD, 10)));
 			t3.addCell(p);
-			p.setPhrase(new Phrase(String.format("%.2f", max1)));
+			p.setPhrase(new MyCustomePhrase(String.format("%.2f", max1)));
 			t3.addCell(p);
-			p.setPhrase(new Phrase(String.format("%.2f", max2)));
+			p.setPhrase(new MyCustomePhrase(String.format("%.2f", max2)));
 			t3.addCell(p);
-			p.setPhrase(new Phrase(String.format("%.2f", max1)));
+			p.setPhrase(new MyCustomePhrase(String.format("%.2f", max1)));
 			t3.addCell(p);
-			p.setPhrase(new Phrase(String.format("%.2f", max2)));
+			p.setPhrase(new MyCustomePhrase(String.format("%.2f", max2)));
 			t3.addCell(p);
 			
 			DecimalFormat format = new DecimalFormat("0.####E0");
 			PdfPTable t4 = new PdfPTable(2);
 			t4.setWidthPercentage(100);
-			p = new PdfPCell(new Phrase("LINEAR "));
+			p = new PdfPCell(new MyCustomePhrase("LINEAR ", FontFactory.getFont(FontFactory.TIMES_BOLD, 10)));
 			p.setBorder(Rectangle.LEFT|Rectangle.TOP|Rectangle.BOTTOM);
 			p.setGrayFill(0.8f);
 			t4.addCell(p);
-			p = new PdfPCell(new Phrase("(G) = " + String.valueOf(format.format(gf)) + " " + unit + "/DIGIT"));
+			p = new PdfPCell(new MyCustomePhrase("(G) = " + String.valueOf(format.format(gf)) + " " + unit + "/DIGIT"));
 			p.setBorder(Rectangle.TOP|Rectangle.RIGHT|Rectangle.BOTTOM);
 			p.setGrayFill(0.8f);
 			t4.addCell(p);
-			p = new PdfPCell(new Phrase("THERMAL "));
+			p = new PdfPCell(new MyCustomePhrase("THERMAL ", FontFactory.getFont(FontFactory.TIMES_BOLD, 10)));
 			p.setBorder(Rectangle.LEFT|Rectangle.TOP|Rectangle.BOTTOM);
 			t4.addCell(p);
-			p = new PdfPCell(new Phrase("(K) = " + String.valueOf(format.format(0.000126)) + " " + unit + "� C"));
+			p = new PdfPCell(new MyCustomePhrase("(K) = " + String.valueOf(format.format(0.000126)) + " " + unit + "� C"));
 			p.setBorder(Rectangle.TOP|Rectangle.RIGHT|Rectangle.BOTTOM);
 			t4.addCell(p);
 			
 			PdfPTable t5 = new PdfPTable(4);
 			t5.setWidthPercentage(100);
-			t5.addCell(new PdfPCell(new Phrase("Polynomial Const.")));
+			t5.addCell(new PdfPCell(new MyCustomePhrase("Polynomial Const.")));
 			
 			String sa = String.valueOf(format.format(abc[2]));
-			p = new PdfPCell(new Phrase("A = " + sa));
+			p = new PdfPCell(new MyCustomePhrase("A = " + sa));
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
 			t5.addCell(p);
 			sa = String.valueOf(format.format(abc[1]));
-			p = new PdfPCell(new Phrase("B = " + sa));
+			p = new PdfPCell(new MyCustomePhrase("B = " + sa));
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
 			t5.addCell(p);
 			sa = String.valueOf(format.format(abc[0]));
-			p = new PdfPCell(new Phrase("C = " + sa));
+			p = new PdfPCell(new MyCustomePhrase("C = " + sa));
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
 			t5.addCell(p);
 			
 			PdfPTable t6 = new PdfPTable(1);
 			t6.setWidthPercentage(100);
 			p = new PdfPCell();
 			p.setBorder(Rectangle.LEFT|Rectangle.RIGHT|Rectangle.TOP);
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
+			p.setVerticalAlignment(Element.ALIGN_CENTER);
 			
 			String[] t4L = {
 					"",
 					"To Calculate Pressure 'P'  use the following equation:",
-					"Linear P = G(R0 - R1)+k(T1-T0)-(S1-S0)",
-					"Polynomial  P = A(R1)\u00b2 +B(R1)+ C + k(T1-T0)-(S1-S0)",
-					"R1= Current reading in digit during observation.",
+					"Linear (P) = G(R0 - R1) + k(T1 - T0) - (S1 - S0)",
+					"Polynomial  (P) = A(R\u0031)\u00b2 + B(R1) + C + k(T1 - T0) - (S1 - S0)",
+					"R1 = Current reading in digit during observation.",
+			};
+
+			for (int i = 0 ; i < t4L.length ; i++) {
+				p.setPhrase(new MyCustomePhrase(t4L[i], FontFactory.getFont(FontFactory.TIMES, 8)));
+				p.setBorder(Rectangle.LEFT|Rectangle.RIGHT);
+				t6.addCell(p);
+			}
+
+			PdfPTable t7 = new PdfPTable(6);
+			t7.setWidthPercentage(100);
+			p = new PdfPCell();
+			p.setBorder(0);
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
+			p.setVerticalAlignment(Element.ALIGN_CENTER);
+
+			p.setPhrase(new MyCustomePhrase("Factory Zero Reading"));
+			t7.addCell(p);
+
+			String fzeroreading = String.format("%.0f", x[0] + ThreadLocalRandom.current().nextInt(-5, 6));
+			p.setPhrase(new MyCustomePhrase(fzeroreading));
+			p.setBorder(15);
+			t7.addCell(p);
+
+			p.setBorder(0);
+
+			p.setPhrase(new MyCustomePhrase("Temperature"));
+			t7.addCell(p);
+
+			p.setBorder(15);
+			p.setPhrase(new MyCustomePhrase("23°C"));
+			t7.addCell(p);
+
+			p.setBorder(0);
+			p.setPhrase(new MyCustomePhrase("Barometer"));
+			t7.addCell(p);
+
+			p.setBorder(15);
+			p.setPhrase(new MyCustomePhrase("1004 mb"));
+			t7.addCell(p);
+
+			t6.addCell(t7);
+
+			p.setHorizontalAlignment(Element.ALIGN_LEFT);
+
+			p.setPhrase(new MyCustomePhrase("This calibration has been verified/validated as of " + date6mo, FontFactory.getFont(FontFactory.TIMES, 8)));
+			p.setBorder(Rectangle.LEFT | Rectangle.RIGHT);
+			t6.addCell(p);
+
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+			p.setPhrase(
+					new Phrase(
+							"The above instrument was found to be in tolerance in all operating ranges.",
+							FontFactory.getFont(FontFactory.TIMES_BOLD, 8)
+					)
+			);
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
+			p.setBorder(Rectangle.LEFT | Rectangle.RIGHT);
+			t6.addCell(p);
+
+			p.setPhrase(
+					new Phrase(
+							"The above instrument has been calibrated by comparison with standards traceable to the NIST, in compliance with ANSI Z540-1",
+							FontFactory.getFont(FontFactory.TIMES_BOLD, 9)
+					)
+			);
+			t6.addCell(p);
+
+			p.setHorizontalAlignment(Element.ALIGN_CENTER);
+			p.setVerticalAlignment(Element.ALIGN_CENTER);
+
+			String[] t5L = {
 					"User is advised to establish zero conditions at known temperature & atmospheric pressure.",
 					"",
-					"Digit=Freq\u00b2/1000 also called LU (Linear Unit).",
-					"R0=Reading at zero pressure in LU.",
-					"R1= Current reading in LU during observation.",
-					"k= Thermal factor in " + unit + "/\u00b0C.",
+					"Digit = Freq\u00b2/1000 also called LU (Linear Unit).",
+					"R0 = Reading at zero pressure in LU.",
+					"R1 = Current reading in LU during observation.",
+					"k = Thermal factor in " + unit + "/\u00b0C.",
 					"T0 = Temp at the time of taking zero reading.",
 					"T1 = Temp during observation.",
-					"S0= atmospheric pressure at the time of taking zero reading",
-					"S1= Atmospheric pressure during observation.",
+					"S0 = atmospheric pressure at the time of taking zero reading",
+					"S1 = Atmospheric pressure during observation.",
 					"",
 					"Red\t=\tSENSOR+\tGreen\t=\tThermistor",
 					"Black\t=\tSENSOR-\tWhite\t=\tThermistor\tBare\t=\tSHIELD"
 			};
 			
-			for (int i = 0 ; i < t4L.length ; i++) {
-				if (i != t4L.length - 1) {
-					p.setPhrase(new Phrase(t4L[i]));
+			for (int i = 0 ; i < t5L.length ; i++) {
+				p.setPhrase(new Phrase(t5L[i], FontFactory.getFont(FontFactory.TIMES, 10)));
+				if (i != t5L.length - 1) {
 					if (i != 0) p.setBorder(Rectangle.LEFT|Rectangle.RIGHT);
 				} else {
 					p.setBorder(Rectangle.LEFT|Rectangle.BOTTOM|Rectangle.RIGHT);
-					p.setPhrase(new Phrase(t4L[i]));
 				}
 				
-				p.setGrayFill(i == 5 ? 0.8f : 1f);
+				p.setGrayFill(i == 0 ? 0.8f : 1f);
 				t6.addCell(p);
 			}
 			
@@ -761,4 +854,6 @@ public class Main extends JFrame {
 		}
 		
 	}
+
+	private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 }
