@@ -132,6 +132,7 @@ public class Main extends JFrame {
 		comboBox.addItem("500");
 		comboBox.addItem("4");
 		comboBox.addItem("400");
+		comboBox.addItem("700");
 		contentPane.add(comboBox);
 		separator.setBounds(3, 115, 692, 7);
 		contentPane.add(separator);
@@ -466,6 +467,10 @@ public class Main extends JFrame {
 		} else if (selection == 15) {
 			maxLoad = 400.0f;
 			difference = 80.0f;
+			num = 5;
+		} else if (selection == 16) {
+			maxLoad = 700.0f;
+			difference = 140.0f;
 			num = 5;
 		}
 

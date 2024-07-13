@@ -10,17 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2258665d-3d8c-4023-b9f6-586dcd26242d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/bradley/readinggenerator/MyCustomePhrase.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$3.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$4.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$5.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$6$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$6$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main$6.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/com/bradley/readinggenerator/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/bradley/readinggenerator/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/bradley/readinggenerator/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +68,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1718248780495</updated>
-      <workItem from="1718248781584" duration="16405000" />
+      <workItem from="1718248781584" duration="17878000" />
     </task>
     <servers />
   </component>
